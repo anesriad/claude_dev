@@ -1,27 +1,19 @@
-import anthropic
 from dotenv import load_dotenv
 
-from claude_assist.config import MODEL, MAX_TOKENS, SYSTEM
+from claude_assist import config
+from claude_assist.conversation import Conversation
 
 
 # Load the API key from the .env file.
 load_dotenv()
 
-# Create the Claude API client.
-client = anthropic.Anthropic()
+# Create one Conversation object for the whole chat.
+convo = Conversation(config.SYSTEM)
 
-# Ask the user for one message.
-user_text = input("You: ")
+while True:
+    user = input("You: ")
 
-# Send the message to Claude.
-resp = client.messages.create(
-    model=MODEL,
-    max_tokens=MAX_TOKENS,
-    system=SYSTEM,
-    messages=[
-        {"role": "user", "content": user_text}
-    ]
-)
+    if user.lower() == "quit":
+        break
 
-# Print Claude's reply.
-print("Claude:", resp.content[0].text)
+    print("Claude:", convo.send(user))
