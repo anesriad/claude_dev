@@ -1,11 +1,20 @@
-# Keep the main settings in one place.
+# Lesson 18: Read Claude settings and secrets without storing keys in code.
+# Update the existing claude_assist/config.py; keep any custom model settings you already use.
 
-MODEL = "claude-sonnet-5-5"
+import os
+from dotenv import load_dotenv
 
-HAIKU_MODEL = "claude-haiku-5-5"
-SONNET_MODEL = "claude-sonnet-5-5"
-OPUS_MODEL = "claude-opus-5-5"
-FABLE_MODEL = "claude-fable-5-1"
+# Local development only: load .env when it exists. Deployed apps can use environment variables.
+load_dotenv()
 
-MAX_TOKENS = 300
-SYSTEM = "You are Claude Assist."
+MODEL = os.getenv("CLAUDE_MODEL", "claude-sonnet-5-5")
+MAX_TOKENS = 1024
+SYSTEM = "You are Claude Assist. Be helpful, clear, and use tools when useful."
+
+
+# Check a required key at application startup, without printing its value.
+def require_api_key():
+    key = os.getenv("ANTHROPIC_API_KEY")
+    if not key or not key.strip():
+        raise RuntimeError("Missing ANTHROPIC_API_KEY. Set it in your environment.")
+    return key
