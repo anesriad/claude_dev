@@ -24,7 +24,6 @@ def final_response(text):
     block = SimpleNamespace(type="text", text=text)
     return SimpleNamespace(stop_reason="end_turn", content=[block])
 
-
 # Run the existing agent against scripted responses, not the real API.
 def check_agent_flow():
     note = "Client call prep: review goals, risks, next steps, and key questions."
