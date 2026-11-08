@@ -9,3 +9,10 @@
 - Safe request hooks for token usage and elapsed time
 - Evaluation cases, automated tests, and offline integration checks
 
+### Updated
+- Central settings and environment-based API key validation
+- Project setup, usage instructions, and release checks
+
+### Before version 1.0
+- Complete the live end-to-end capstone demonstration in Lesson 20
+- Address any failures found during the final validation

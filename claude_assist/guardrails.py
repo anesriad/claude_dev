@@ -1,31 +1,25 @@
-# Lesson 17: Small input, output, and tool checks for Claude Assist.
-# These are extra safety checks, not a complete prompt-injection defence.
+# Lesson 20: The Lesson 17 checks, with a longer meeting brief and a read-only notes tool.
+# Tags help identify user content; they do not make prompt injection impossible.
 
 from html import escape
 import math
 
-MAX_INPUT_LENGTH = 800
-MAX_OUTPUT_LENGTH = 4000
-MAX_NOTE_LENGTH = 500
+MAX_INPUT_LENGTH = 1200
+MAX_OUTPUT_LENGTH = 5000
+MAX_NOTE_LENGTH = 2500
 
-
-# Validate input and label it as untrusted user text.
+# Check user text before sending it to Claude.
 def check_input(text):
     if not isinstance(text, str):
         return None, "Input must be text."
-
     text = text.strip()
     if not text:
         return None, "Input cannot be empty."
     if len(text) > MAX_INPUT_LENGTH:
-        return None, "Input is too long."
-
-    # Escaping prevents user text from closing our example XML tags.
-    # The tags are a signal to Claude, not a security boundary by themselves.
+        return None, f"Input is too long (max {MAX_INPUT_LENGTH} characters)."
     return f"<user_request>{escape(text)}</user_request>", None
 
-
-# Validate a final text answer before returning it to the user.
+# Check the final answer is valid text of a reasonable size.
 def check_output(reply):
     if not isinstance(reply, str) or not reply.strip():
         return False, "Empty or invalid response."
@@ -33,8 +27,7 @@ def check_output(reply):
         return False, "Response is too long."
     return True, None
 
-
-# Check the name and arguments before ANY requested tool is executed.
+# Validate tool names and inputs before running any Python or MCP tool.
 def check_tool_call(name, args):
     if not isinstance(args, dict):
         return False, "Tool arguments must be an object."
@@ -46,11 +39,12 @@ def check_tool_call(name, args):
         if not isinstance(text, str) or not text.strip():
             return False, "Note text is required."
         if len(text) > MAX_NOTE_LENGTH:
-            return False, "Note is too long."
+            return False, f"Note is too long (max {MAX_NOTE_LENGTH} characters)."
         return True, None
 
-    if name == "get_time":
-        return (True, None) if not args else (False, "get_time takes no inputs.")
+    # A read-only tool needs no inputs.
+    if name in ("get_notes", "get_time"):
+        return (True, None) if not args else (False, f"{name} takes no inputs.")
 
     if name == "count_words":
         if set(args) != {"text"} or not isinstance(args.get("text"), str):
